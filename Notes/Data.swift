@@ -12,6 +12,7 @@ struct Note {
     var date: String
     var time: String
     var detail: String
+    var id: Int
     
     init?() {
         let dateFormatter = DateFormatter()
@@ -21,6 +22,7 @@ struct Note {
         date = dateFormatter.string(from: Date())
         time = timeFormatter.string(from: Date())
         detail = ""
+        id = DataSource.shared.globalId
     }
 }
 
@@ -30,17 +32,44 @@ class DataSource {
     
     private(set) var noteList: [Note] = []
     
+    var filteredNoteList: [Note] = []
+    var isSearching: Bool = false
+    var globalId: Int = 0
+    
     var selectedNoteDetail: String?
     var noteIndex: Int?
     var toReloadTableview: Bool?
 
     func append(note: Note) {
+        globalId += 1
+        print("GLOBALID = \(globalId)")
         self.noteList.append(note)
     }
     func remove(at index: Int) {
-        self.noteList.remove(at: index)
+        if isSearching == true{
+            let deleteId = filteredNoteList[index].id
+            self.filteredNoteList.remove(at: index)
+            for i in 0...noteList.count-1{
+                if deleteId == noteList[i].id {
+                    self.noteList.remove(at: i)
+                }
+            }
+        } else {
+            self.noteList.remove(at: index)
+        }
+        
     }
     func edit(at index: Int, editedNote: Note) {
-        self.noteList[index] = editedNote
+        if isSearching{
+            let editId = filteredNoteList[index].id
+            self.filteredNoteList[index] = editedNote
+            for i in 0...noteList.count-1{
+                if editId == noteList[i].id {
+                    self.noteList[i] = editedNote
+                }
+            }
+        } else {
+            self.noteList[index] = editedNote
+        }
     }
 }

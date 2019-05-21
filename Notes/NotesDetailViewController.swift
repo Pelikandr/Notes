@@ -23,6 +23,9 @@ class NotesDetailViewController: UIViewController {
     var condition: NoteDetailCondition?
     var editIndex: Int?
     
+    var filteredNoteList = DataSource.shared.filteredNoteList
+    var isSearching = DataSource.shared.isSearching
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         newNote?.detail = ""
@@ -38,12 +41,16 @@ class NotesDetailViewController: UIViewController {
             self.navigationItem.rightBarButtonItem  = saveButton
             }
         case .edit?: do {
-            detail = DataSource.shared.noteList[editIndex!].detail
-            noteDetailTextView.text = detail
+            if DataSource.shared.isSearching{
+                detail = DataSource.shared.filteredNoteList[editIndex!].detail
+                noteDetailTextView.text = detail
+            } else {
+                detail = DataSource.shared.noteList[editIndex!].detail
+                noteDetailTextView.text = detail
+            }
             let editButton =  UIBarButtonItem(image: UIImage(named: "imagename"), style: .plain, target: self, action:#selector(self.edit(_:)) )
             editButton.title = "Изменить"
             self.navigationItem.rightBarButtonItem  = editButton
-            noteDetailTextView.text = detail
             }
         case .none: print("Condition none")
         }
