@@ -23,6 +23,10 @@ class NoteTableViewCell: UITableViewCell {
     }
     
     override func prepareForReuse() {
+        super.prepareForReuse()
         dateLabel.text = nil
+        detailLabel.text = nil
+        timeLabel.text = nil
     }
+    
 }

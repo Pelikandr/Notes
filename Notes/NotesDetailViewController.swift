@@ -19,13 +19,13 @@ class NotesDetailViewController: UIViewController {
     @IBOutlet weak var noteDetailTextView: UITextView!
     
     var detail: String = ""
-    var n1 = Note()
+    var newNote = Note()
     var condition: NoteDetailCondition?
     var editIndex: Int?
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        n1?.detail = ""
+        newNote?.detail = ""
 
         switch condition {
         case .detail?: do {
@@ -45,17 +45,17 @@ class NotesDetailViewController: UIViewController {
             self.navigationItem.rightBarButtonItem  = editButton
             noteDetailTextView.text = detail
             }
-        case .none: print("Error")
+        case .none: print("Condition none")
         }
     }
     
     @objc func save(_ sender:UIBarButtonItem!)
     {
         if noteDetailTextView.text != "" {
-            n1?.detail = noteDetailTextView.text
-            DataSource.shared.append(note:n1!)
+            newNote?.detail = noteDetailTextView.text
+            DataSource.shared.append(note:newNote!)
             self.navigationController?.popViewController(animated: true)
-            DataSource.shared.flag = true
+            DataSource.shared.toReloadTableview = true
         } else {
             let alertController = UIAlertController(title: "Ошибка", message: "Заметка не может быть пустой", preferredStyle: .alert)
             self.present(alertController, animated: true, completion: nil)
@@ -68,15 +68,13 @@ class NotesDetailViewController: UIViewController {
     
     @objc func edit(_ sender:UIBarButtonItem!)
     {
-        n1?.detail = noteDetailTextView.text
-        DataSource.shared.edit(at: editIndex!, editedNote: n1!)
+        newNote?.detail = noteDetailTextView.text
+        DataSource.shared.edit(at: editIndex!, editedNote: newNote!)
         self.navigationController?.popViewController(animated: true)
-        DataSource.shared.flag = true
+        DataSource.shared.toReloadTableview = true
     }
     
     @IBAction func share(_ sender: UIView) {
-        UIGraphicsBeginImageContext(view.frame.size)
-        view.layer.render(in: UIGraphicsGetCurrentContext()!)
         let textToShare = noteDetailTextView.text
         let activityVC = UIActivityViewController(activityItems: [textToShare as Any] , applicationActivities: nil)
         activityVC.excludedActivityTypes = [UIActivity.ActivityType.airDrop, UIActivity.ActivityType.addToReadingList]

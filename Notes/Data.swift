@@ -32,7 +32,7 @@ class DataSource {
     
     var selectedNoteDetail: String?
     var noteIndex: Int?
-    var flag: Bool?
+    var toReloadTableview: Bool?
 
     func append(note: Note) {
         self.noteList.append(note)

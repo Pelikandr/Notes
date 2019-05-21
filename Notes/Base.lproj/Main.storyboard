@@ -14,40 +14,63 @@
         <scene sceneID="AI9-Lz-CXf">
             <objects>
                 <tableViewController id="wDf-Fu-7UZ" customClass="NotesListViewController" customModule="Notes" customModuleProvider="target" sceneMemberID="viewController">
-                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" id="gFO-VT-89c">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" restorationIdentifier="searchController" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" id="gFO-VT-89c">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <searchBar key="tableHeaderView" contentMode="redraw" text="" id="CAP-py-rRV">
+                            <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
+                            <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                            <color key="barTintColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            <textInputTraits key="textInputTraits"/>
+                        </searchBar>
                         <prototypes>
                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" accessoryType="disclosureIndicator" indentationWidth="10" reuseIdentifier="cell" rowHeight="75" id="9iB-up-yVu" customClass="NoteTableViewCell" customModule="Notes" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="28" width="375" height="75"/>
+                                <rect key="frame" x="0.0" y="72" width="375" height="75"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="9iB-up-yVu" id="Fae-26-b3x">
                                     <rect key="frame" x="0.0" y="0.0" width="341" height="74.5"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
-                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" restorationIdentifier="timeLabel" text="12:04" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="h3M-wQ-IBS">
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" restorationIdentifier="timeLabel" text="12:04" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="h3M-wQ-IBS">
                                             <rect key="frame" x="316" y="5" width="60" height="21"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <constraints>
+                                                <constraint firstAttribute="width" constant="60" id="QT7-HK-zvU"/>
+                                                <constraint firstAttribute="height" constant="21" id="x0B-1k-qja"/>
+                                            </constraints>
                                             <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                             <color key="textColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                             <nil key="highlightedColor"/>
                                         </label>
-                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="12.04.12" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="BQw-dG-mMj">
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="12.04.12" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="BQw-dG-mMj">
                                             <rect key="frame" x="16" y="5" width="80" height="21"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <constraints>
+                                                <constraint firstAttribute="height" constant="21" id="R1b-gs-Ory"/>
+                                                <constraint firstAttribute="width" constant="80" id="orl-7P-I5w"/>
+                                            </constraints>
                                             <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                             <color key="textColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                             <nil key="highlightedColor"/>
                                         </label>
-                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" restorationIdentifier="detailLabel" text="Draw fond rank form nor the day eat. Steepest speaking up attended it as. If as increasing contrasted ent" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ee1-jX-0bl">
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" restorationIdentifier="detailLabel" text="Draw fond rank form nor the day eat. Steepest speaking up attended it as. If as increasing contrasted ent" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ee1-jX-0bl">
                                             <rect key="frame" x="16" y="23" width="327" height="41"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <constraints>
+                                                <constraint firstAttribute="height" constant="41" id="1o4-vf-Gla"/>
+                                                <constraint firstAttribute="width" constant="327" id="VKF-yw-kSr"/>
+                                            </constraints>
                                             <fontDescription key="fontDescription" type="system" pointSize="12"/>
                                             <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                             <nil key="highlightedColor"/>
                                         </label>
                                     </subviews>
+                                    <constraints>
+                                        <constraint firstItem="h3M-wQ-IBS" firstAttribute="centerY" secondItem="Fae-26-b3x" secondAttribute="centerY" constant="-21.75" id="AhA-ty-4xo"/>
+                                        <constraint firstItem="h3M-wQ-IBS" firstAttribute="centerX" secondItem="Fae-26-b3x" secondAttribute="centerX" constant="175.5" id="G5K-fO-Xn6"/>
+                                        <constraint firstItem="BQw-dG-mMj" firstAttribute="centerY" secondItem="Fae-26-b3x" secondAttribute="centerY" constant="-21.75" id="Km8-0a-vp2"/>
+                                        <constraint firstItem="ee1-jX-0bl" firstAttribute="centerY" secondItem="Fae-26-b3x" secondAttribute="centerY" constant="6.25" id="iyi-80-f8Q"/>
+                                        <constraint firstItem="BQw-dG-mMj" firstAttribute="centerX" secondItem="Fae-26-b3x" secondAttribute="centerX" constant="-114.5" id="wJb-E9-PpL"/>
+                                        <constraint firstItem="ee1-jX-0bl" firstAttribute="centerX" secondItem="Fae-26-b3x" secondAttribute="centerX" constant="9" id="zde-06-z1a"/>
+                                    </constraints>
                                 </tableViewCellContentView>
                                 <connections>
                                     <outlet property="dateLabel" destination="BQw-dG-mMj" id="M2u-T1-jtg"/>
@@ -69,10 +92,20 @@
                         </barButtonItem>
                     </navigationItem>
                     <connections>
+                        <outlet property="searchBar" destination="CAP-py-rRV" id="cdv-JN-tfy"/>
+                        <outlet property="searchDisplayController" destination="HMi-0i-AkC" id="CtL-tW-LJZ"/>
                         <segue destination="BYZ-38-t0r" kind="show" identifier="ShowNotesDetailViewController" id="BqC-Z7-CHO"/>
                     </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="qh6-Zo-Tva" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <searchDisplayController id="HMi-0i-AkC">
+                    <connections>
+                        <outlet property="delegate" destination="wDf-Fu-7UZ" id="TyQ-Fi-0aA"/>
+                        <outlet property="searchContentsController" destination="wDf-Fu-7UZ" id="MdO-aA-p0x"/>
+                        <outlet property="searchResultsDataSource" destination="wDf-Fu-7UZ" id="UPH-iO-lPH"/>
+                        <outlet property="searchResultsDelegate" destination="wDf-Fu-7UZ" id="4N0-w6-a6Q"/>
+                    </connections>
+                </searchDisplayController>
             </objects>
             <point key="canvasLocation" x="492" y="139.880059970015"/>
         </scene>
