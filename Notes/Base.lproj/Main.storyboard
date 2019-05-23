@@ -85,11 +85,18 @@
                         </connections>
                     </tableView>
                     <navigationItem key="navigationItem" title="Заметки" id="kQN-YD-SdJ">
-                        <barButtonItem key="rightBarButtonItem" systemItem="add" id="vQY-CG-s44">
-                            <connections>
-                                <action selector="addNote:" destination="wDf-Fu-7UZ" id="Pa6-3L-1E8"/>
-                            </connections>
-                        </barButtonItem>
+                        <rightBarButtonItems>
+                            <barButtonItem systemItem="add" id="vQY-CG-s44">
+                                <connections>
+                                    <action selector="addNote:" destination="wDf-Fu-7UZ" id="Pa6-3L-1E8"/>
+                                </connections>
+                            </barButtonItem>
+                            <barButtonItem systemItem="compose" id="5cS-3J-hbS">
+                                <connections>
+                                    <action selector="sortNotes:" destination="wDf-Fu-7UZ" id="OyA-no-3kj"/>
+                                </connections>
+                            </barButtonItem>
+                        </rightBarButtonItems>
                     </navigationItem>
                     <connections>
                         <outlet property="searchBar" destination="CAP-py-rRV" id="cdv-JN-tfy"/>

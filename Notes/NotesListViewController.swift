@@ -16,10 +16,9 @@ class NotesListViewController: UITableViewController, UISearchBarDelegate {
     
     var n1 = Note()
     var n2 = Note()
+    var n3 = Note()
     var filteredNoteList = DataSource.shared.filteredNoteList
     var isSearching = DataSource.shared.isSearching
-    
-   // var deleteId = DataSource.shared.deleteId
     
     @IBOutlet weak var searchBar: UISearchBar!
     
@@ -75,7 +74,8 @@ class NotesListViewController: UITableViewController, UISearchBarDelegate {
             cellOutput(cell: cell, indexPath: indexPath, noteListIndex: noteListIndex)
         }
         return cell
-            
+        
+        
     }
 
     override func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
@@ -95,7 +95,6 @@ class NotesListViewController: UITableViewController, UISearchBarDelegate {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if let indexPath = tableView.indexPathForSelectedRow {
             if DataSource.shared.isSearching == true  {
-                print(DataSource.shared.filteredNoteList[indexPath.row].detail)
                 if let nextVC = segue.destination as? NotesDetailViewController {
                     nextVC.detail = DataSource.shared.filteredNoteList[indexPath.row].detail
                     nextVC.condition = condition
@@ -118,6 +117,7 @@ class NotesListViewController: UITableViewController, UISearchBarDelegate {
         condition = .add
         toNotesDetailVC()
     }
+    
     
     @objc func refreshArray() {
         tableView.reloadData()
@@ -152,6 +152,7 @@ class NotesListViewController: UITableViewController, UISearchBarDelegate {
         searchBar.showsCancelButton = false
         searchBar.endEditing(true)
         DataSource.shared.isSearching = false
+        DataSource.shared.filteredNoteList.removeAll()
         self.tableView.reloadData()
     }
     

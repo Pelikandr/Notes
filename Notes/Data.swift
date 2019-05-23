@@ -16,11 +16,10 @@ struct Note {
     
     init?() {
         let dateFormatter = DateFormatter()
-        let timeFormatter = DateFormatter()
         dateFormatter.dateFormat = "dd.MM"
-        timeFormatter.dateFormat = "HH:mm"
         date = dateFormatter.string(from: Date())
-        time = timeFormatter.string(from: Date())
+        dateFormatter.dateFormat = "HH:mm"
+        time = dateFormatter.string(from: Date())
         detail = ""
         id = DataSource.shared.globalId
     }
@@ -33,6 +32,7 @@ class DataSource {
     private(set) var noteList: [Note] = []
     
     var filteredNoteList: [Note] = []
+    //var sortedNotes: [Note] = []
     var isSearching: Bool = false
     var globalId: Int = 0
     
@@ -42,7 +42,6 @@ class DataSource {
 
     func append(note: Note) {
         globalId += 1
-        print("GLOBALID = \(globalId)")
         self.noteList.append(note)
     }
     func remove(at index: Int) {
@@ -52,6 +51,7 @@ class DataSource {
             for i in 0...noteList.count-1{
                 if deleteId == noteList[i].id {
                     self.noteList.remove(at: i)
+                    break
                 }
             }
         } else {
@@ -66,10 +66,16 @@ class DataSource {
             for i in 0...noteList.count-1{
                 if editId == noteList[i].id {
                     self.noteList[i] = editedNote
+                    break
                 }
             }
         } else {
             self.noteList[index] = editedNote
         }
     }
+    /*
+    func sort() {
+        DataSource.shared.noteList = NSMutableArray(array:DataSource.shared.sortedNotes) as! [Note]
+    }
+ */
 }
