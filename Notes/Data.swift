@@ -32,7 +32,7 @@ class DataSource {
     private(set) var noteList: [Note] = []
     
     var filteredNoteList: [Note] = []
-    //var sortedNotes: [Note] = []
+    var sortedNotes: [Note] = []
     var isSearching: Bool = false
     var globalId: Int = 0
     
@@ -73,9 +73,9 @@ class DataSource {
             self.noteList[index] = editedNote
         }
     }
-    /*
+    
     func sort() {
         DataSource.shared.noteList = NSMutableArray(array:DataSource.shared.sortedNotes) as! [Note]
     }
- */
+ 
 }
