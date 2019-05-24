@@ -28,6 +28,10 @@ class NotesDetailViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+        
         newNote?.detail = ""
 
         switch condition {
@@ -54,6 +58,17 @@ class NotesDetailViewController: UIViewController {
             }
         case .none: print("Condition none")
         }
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        self.noteDetailTextView.becomeFirstResponder()
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        NotificationCenter.default.removeObserver(self)
     }
     
     @objc func save(_ sender:UIBarButtonItem!)
@@ -97,6 +112,27 @@ class NotesDetailViewController: UIViewController {
         let activityVC = UIActivityViewController(activityItems: [textToShare as Any] , applicationActivities: nil)
         activityVC.excludedActivityTypes = [UIActivity.ActivityType.airDrop, UIActivity.ActivityType.addToReadingList]
         self.present(activityVC, animated: true, completion: nil)
+    }
+    
+    @objc func keyboardWillShow(notification: Notification) {
+        let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue
+        let animationDuration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval
+        
+        if let keyboardSize = keyboardSize, let animationDuration = animationDuration {
+            UIView.animate(withDuration: animationDuration) {
+                self.view.frame = CGRect(origin: .zero, size: CGSize(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height - keyboardSize.height))
+            }
+        }
+    }
+    
+    @objc func keyboardWillHide(notification: Notification) {
+        let animationDuration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval
+        
+        if let animationDuration = animationDuration {
+            UIView.animate(withDuration: animationDuration) {
+                self.view.frame = CGRect(origin: .zero, size: UIScreen.main.bounds.size)
+            }
+        }
     }
 }
 
