@@ -135,14 +135,22 @@
                     </view>
                     <toolbarItems/>
                     <navigationItem key="navigationItem" id="dZT-7e-hCm">
-                        <barButtonItem key="rightBarButtonItem" systemItem="action" id="f4J-IM-nEI">
-                            <connections>
-                                <action selector="share:" destination="BYZ-38-t0r" id="cgz-Ro-vvx"/>
-                            </connections>
-                        </barButtonItem>
+                        <rightBarButtonItems>
+                            <barButtonItem systemItem="action" id="f4J-IM-nEI">
+                                <connections>
+                                    <action selector="share:" destination="BYZ-38-t0r" id="cgz-Ro-vvx"/>
+                                </connections>
+                            </barButtonItem>
+                            <barButtonItem title="Item" id="j5B-qf-E6d">
+                                <connections>
+                                    <action selector="actionButtonTapped:" destination="BYZ-38-t0r" id="VJL-Vj-qBw"/>
+                                </connections>
+                            </barButtonItem>
+                        </rightBarButtonItems>
                     </navigationItem>
                     <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
                     <connections>
+                        <outlet property="actionButton" destination="j5B-qf-E6d" id="Zna-Re-PTt"/>
                         <outlet property="noteDetailTextView" destination="i1l-1t-HF8" id="I1e-bm-t6d"/>
                         <segue destination="ib7-aF-RPK" kind="presentation" identifier="ShowNotesList" id="kqq-8l-J0r"/>
                     </connections>

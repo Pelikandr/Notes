@@ -17,6 +17,7 @@ enum NoteDetailCondition {
 class NotesDetailViewController: UIViewController {
 
     @IBOutlet weak var noteDetailTextView: UITextView!
+    @IBOutlet weak var actionButton: UIBarButtonItem!
     
     var note: Note?
     var condition: NoteDetailCondition = .detail
@@ -36,21 +37,13 @@ class NotesDetailViewController: UIViewController {
         switch condition {
         case .detail:
             noteDetailTextView.isEditable = false
+            actionButton.title = "Редактировать"
             
         case .add:
-            let saveButton = UIBarButtonItem.init(title: "Сохранить", style: .plain, target: self, action: #selector(save))
-            self.navigationItem.rightBarButtonItem = saveButton
+            actionButton.title = "Сохранить"
             
         case .edit:
-//            if DataSource.shared.isSearching{
-//                detail = DataSource.shared.filteredNoteList[editIndex!].detail
-//                noteDetailTextView.text = note?.detail
-//            } else {
-//                detail = DataSource.shared.noteList[editIndex!].detail
-//                noteDetailTextView.text = note?.detail
-//            }
-            let editButton = UIBarButtonItem.init(title: "Изменить", style: .plain, target: self, action: #selector(edit))
-            self.navigationItem.rightBarButtonItem = editButton
+            actionButton.title = "Изменить"
         }
     }
     
@@ -64,40 +57,29 @@ class NotesDetailViewController: UIViewController {
         NotificationCenter.default.removeObserver(self)
     }
     
-    @objc func save()
-    {
-        if noteDetailTextView.text != "" {
-            let note = Note(id: UUID().uuidString, date: Date(), detail: noteDetailTextView.text)
-            DataSource.shared.append(note: note)
-            self.navigationController?.popViewController(animated: true)
-            DataSource.shared.toReloadTableview = true
-        } else {
-            let alertController = UIAlertController(title: "Ошибка", message: "Заметка не может быть пустой", preferredStyle: .alert)
-            self.present(alertController, animated: true, completion: nil)
-            let when = DispatchTime.now() + 2
-            DispatchQueue.main.asyncAfter(deadline: when) {
-                alertController.dismiss(animated: true, completion: nil)
+    @IBAction func actionButtonTapped(_ sender: Any) {
+        switch condition {
+        case .detail:
+            noteDetailTextView.isEditable = true
+            noteDetailTextView.becomeFirstResponder()
+            actionButton.title = "Изменить"
+            condition = .edit
+            
+        case .add, .edit:
+            if noteDetailTextView.text != "" {
+                if let id = note?.id {
+                    let editedNote = Note(id: id, date: Date(), detail: noteDetailTextView.text)
+                    DataSource.shared.update(editedNote)
+                } else {
+                    let note = Note(id: UUID().uuidString, date: Date(), detail: noteDetailTextView.text)
+                    DataSource.shared.append(note: note)
+                }
+                self.navigationController?.popViewController(animated: true)
+                DataSource.shared.toReloadTableview = true
+            } else {
+                showNoTextError()
             }
         }
-    }
-    
-    @objc func edit()
-    {
-//        newNote?.detail = noteDetailTextView.text
-//        if isSearching{
-//            let editId = DataSource.shared.filteredNoteList[editIndex!].id
-//            DataSource.shared.editInfilteredNoteList(at: editIndex!, editedNote: newNote!)
-//            for i in 0...DataSource.shared.noteList.count-1{
-//                if editId == DataSource.shared.noteList[i].id {
-//                    DataSource.shared.editInNoteList(at: i, editedNote: newNote!)
-//                    break
-//                }
-//            }
-//        } else {
-//            DataSource.shared.editInNoteList(at: editIndex!, editedNote: newNote!)
-//        }
-//        self.navigationController?.popViewController(animated: true)
-//        DataSource.shared.toReloadTableview = true
     }
     
     @IBAction func share(_ sender: UIView) {
@@ -125,6 +107,15 @@ class NotesDetailViewController: UIViewController {
             UIView.animate(withDuration: animationDuration) {
                 self.view.frame = CGRect(origin: .zero, size: UIScreen.main.bounds.size)
             }
+        }
+    }
+    
+    func showNoTextError() {
+        let alertController = UIAlertController(title: "Ошибка", message: "Заметка не может быть пустой", preferredStyle: .alert)
+        self.present(alertController, animated: true, completion: nil)
+        let when = DispatchTime.now() + 2
+        DispatchQueue.main.asyncAfter(deadline: when) {
+            alertController.dismiss(animated: true, completion: nil)
         }
     }
 }

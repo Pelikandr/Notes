@@ -17,6 +17,7 @@ enum Sort {
 class NotesListViewController: UITableViewController, UISearchBarDelegate {
  
     var condition: NoteDetailCondition = .detail
+    var selectedIndex: Int?
     var sort: Sort = .fromNewToOld {
         didSet {
             DataSource.shared.sort(sort)
@@ -72,7 +73,7 @@ class NotesListViewController: UITableViewController, UISearchBarDelegate {
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        toNotesDetailVC(with: .detail)
+        toNotesDetailVC(with: .detail, index: indexPath.row)
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -94,7 +95,7 @@ class NotesListViewController: UITableViewController, UISearchBarDelegate {
 
     override func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
         let editAction = UITableViewRowAction(style: UITableViewRowAction.Style.default, title: "Изменить") { [weak self] (action, indexPath) -> Void in
-            self?.toNotesDetailVC(with: .edit)
+            self?.toNotesDetailVC(with: .edit, index: indexPath.row)
         }
         editAction.backgroundColor = UIColor.orange
         let deleteAction = UITableViewRowAction(style: UITableViewRowAction.Style.default, title: "Удалить") { (action, indexPath) -> Void in
@@ -117,11 +118,11 @@ class NotesListViewController: UITableViewController, UISearchBarDelegate {
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         let note: Note?
-        if let indexPath = tableView.indexPathForSelectedRow {
+        if let index = selectedIndex {
             if DataSource.shared.isSearching {
-                note = DataSource.shared.filteredNoteList[indexPath.row]
+                note = DataSource.shared.filteredNoteList[index]
             } else {
-                note = DataSource.shared.noteList[indexPath.row]
+                note = DataSource.shared.noteList[index]
             }
         } else {
             note = nil
@@ -134,7 +135,7 @@ class NotesListViewController: UITableViewController, UISearchBarDelegate {
     }
     
     @IBAction func addNote(_ sender: Any) {
-        toNotesDetailVC(with: .add)
+        toNotesDetailVC(with: .add, index: nil)
     }
     
     @objc func refreshArray() {
@@ -142,8 +143,9 @@ class NotesListViewController: UITableViewController, UISearchBarDelegate {
         refreshControl?.endRefreshing()
     }
     
-    func toNotesDetailVC(with conditionValue: NoteDetailCondition) {
+    func toNotesDetailVC(with conditionValue: NoteDetailCondition, index: Int?) {
         condition = conditionValue
+        selectedIndex = index
         self.performSegue(withIdentifier: "ShowNotesDetailViewController", sender: nil)
     }
     

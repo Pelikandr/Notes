@@ -21,17 +21,6 @@ struct Note {
             return detail
         }
     }
-//    init?() {
-//        let dateFormatter = DateFormatter()
-//        dateFormatter.dateFormat = "d MMM yyyy HH:mm:ss"
-//        dateForSort = dateFormatter.string(from: Date())
-//        dateFormatter.dateFormat = "dd.MM"
-//        date = dateFormatter.string(from: Date())
-//        dateFormatter.dateFormat = "HH:mm"
-//        time = dateFormatter.string(from: Date())
-//        detail = ""
-//        id = DataSource.shared.globalId
-//    }
 }
 
 class DataSource {
@@ -43,15 +32,18 @@ class DataSource {
     
     var sortedNotes: [Note] = []
     var isSearching: Bool = false
-    var globalId: Int = 0
     
     var selectedNoteDetail: String?
     var noteIndex: Int?
     var toReloadTableview: Bool?
 
     func append(note: Note) {
-        globalId += 1
         self.noteList.append(note)
+    }
+    func update(_ note: Note) {
+        if let index = noteList.firstIndex(where: { $0.id == note.id }) {
+            noteList[index] = note
+        }
     }
     
     func removeInNoteList(at index: Int) {
