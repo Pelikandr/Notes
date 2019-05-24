@@ -23,7 +23,7 @@ class NotesListViewController: UITableViewController, UISearchBarDelegate {
     
     var filteredNoteList = DataSource.shared.filteredNoteList
     var isSearching = DataSource.shared.isSearching
-    
+
     @IBOutlet weak var searchBar: UISearchBar!
     
     override func viewDidLoad() {
@@ -35,8 +35,6 @@ class NotesListViewController: UITableViewController, UISearchBarDelegate {
         let refreshControl = UIRefreshControl()
         refreshControl.addTarget(self, action:  #selector(refreshArray), for: .valueChanged)
         self.refreshControl = refreshControl
-
-        DataSource.shared.filteredNoteList = NSMutableArray(array: DataSource.shared.noteList) as! [Note]
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -58,6 +56,7 @@ class NotesListViewController: UITableViewController, UISearchBarDelegate {
         case .none:
             print("Sort is none")
         }
+ 
     }
     
     override func numberOfSections(in tableView: UITableView) -> Int {
@@ -104,7 +103,18 @@ class NotesListViewController: UITableViewController, UISearchBarDelegate {
         }
         editAction.backgroundColor = UIColor.orange
         let deleteAction = UITableViewRowAction(style: UITableViewRowAction.Style.default, title: "Удалить") { [weak self] (action, indexPath) -> Void in
-            DataSource.shared.remove(at: indexPath.row)
+            if DataSource.shared.isSearching == true{
+                let deleteId = DataSource.shared.filteredNoteList[indexPath.row].id
+                DataSource.shared.removeInfilteredNoteList(at: indexPath.row)
+                for i in 0...DataSource.shared.noteList.count-1{
+                    if deleteId == DataSource.shared.noteList[i].id {
+                        DataSource.shared.removeInNoteList(at: i)
+                        break
+                    }
+                }
+            } else {
+                DataSource.shared.removeInNoteList(at: indexPath.row)
+            }
             tableView.deleteRows(at: [indexPath], with: .fade)
         }
         return [deleteAction, editAction]
@@ -170,14 +180,12 @@ class NotesListViewController: UITableViewController, UISearchBarDelegate {
         searchBar.showsCancelButton = false
         searchBar.endEditing(true)
         DataSource.shared.isSearching = false
-        DataSource.shared.filteredNoteList.removeAll()
+        DataSource.shared.cleanFilteredList()
         self.tableView.reloadData()
     }
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        DataSource.shared.filteredNoteList = DataSource.shared.noteList.filter({( note : Note) -> Bool in
-            return note.detail.lowercased().contains(searchText.lowercased())
-        })
+        DataSource.shared.filterNoteList(searchText: searchText)
         tableView.reloadData()
         }
     
@@ -204,10 +212,9 @@ class NotesListViewController: UITableViewController, UISearchBarDelegate {
     func sortFromNewToOld() {
         sort = .fromNewToOld
         let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "dd.MM"
-        DataSource.shared.sortedNotes = DataSource.shared.noteList.sorted(by: {$0.time > $1.time})
+        dateFormatter.dateFormat = "d MMM yyyy HH:mm:ss"
         DataSource.shared.sortedNotes = DataSource.shared.noteList.sorted(by:
-            { dateFormatter.date(from: $0.date)!.timeIntervalSinceNow  > dateFormatter.date(from: $1.date)!.timeIntervalSinceNow})
+            { dateFormatter.date(from: $0.dateForSort)!.timeIntervalSinceNow  > dateFormatter.date(from: $1.dateForSort)!.timeIntervalSinceNow})
         DataSource.shared.sort()
         tableView.reloadData()
     }
@@ -215,10 +222,9 @@ class NotesListViewController: UITableViewController, UISearchBarDelegate {
     func sortFromOldToNew() {
         sort = .fromOldToNew
         let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "dd.MM"
-        DataSource.shared.sortedNotes = DataSource.shared.noteList.sorted(by: {$0.time < $1.time})
+        dateFormatter.dateFormat = "d MMM yyyy HH:mm:ss"
         DataSource.shared.sortedNotes = DataSource.shared.noteList.sorted(by:
-            { dateFormatter.date(from: $0.date)!.timeIntervalSinceNow  < dateFormatter.date(from: $1.date)!.timeIntervalSinceNow})
+            { dateFormatter.date(from: $0.dateForSort)!.timeIntervalSinceNow  < dateFormatter.date(from: $1.dateForSort)!.timeIntervalSinceNow})
         DataSource.shared.sort()
         tableView.reloadData()
     }

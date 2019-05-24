@@ -12,10 +12,13 @@ struct Note {
     var date: String
     var time: String
     var detail: String
+    var dateForSort: String
     var id: Int
     
     init?() {
         let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "d MMM yyyy HH:mm:ss"
+        dateForSort = dateFormatter.string(from: Date())
         dateFormatter.dateFormat = "dd.MM"
         date = dateFormatter.string(from: Date())
         dateFormatter.dateFormat = "HH:mm"
@@ -30,8 +33,8 @@ class DataSource {
     static var shared = DataSource()
     
     private(set) var noteList: [Note] = []
+    private(set) var filteredNoteList: [Note] = []
     
-    var filteredNoteList: [Note] = []
     var sortedNotes: [Note] = []
     var isSearching: Bool = false
     var globalId: Int = 0
@@ -44,34 +47,35 @@ class DataSource {
         globalId += 1
         self.noteList.append(note)
     }
-    func remove(at index: Int) {
-        if isSearching == true{
-            let deleteId = filteredNoteList[index].id
-            self.filteredNoteList.remove(at: index)
-            for i in 0...noteList.count-1{
-                if deleteId == noteList[i].id {
-                    self.noteList.remove(at: i)
-                    break
-                }
-            }
-        } else {
-            self.noteList.remove(at: index)
-        }
-        
+    
+    func removeInNoteList(at index: Int) {
+        self.noteList.remove(at: index)
     }
-    func edit(at index: Int, editedNote: Note) {
-        if isSearching{
-            let editId = filteredNoteList[index].id
-            self.filteredNoteList[index] = editedNote
-            for i in 0...noteList.count-1{
-                if editId == noteList[i].id {
-                    self.noteList[i] = editedNote
-                    break
-                }
-            }
-        } else {
-            self.noteList[index] = editedNote
-        }
+    
+    func removeInfilteredNoteList(at index: Int) {
+        self.filteredNoteList.remove(at: index)
+    }
+
+    func editInNoteList(at index: Int, editedNote: Note) {
+        self.noteList[index] = editedNote
+    }
+    
+    func editInfilteredNoteList(at index: Int, editedNote: Note) {
+        self.filteredNoteList[index] = editedNote
+    }
+    
+    func copyListToFilteredList() {
+        DataSource.shared.filteredNoteList = NSMutableArray(array: DataSource.shared.noteList) as! [Note]
+    }
+    
+    func cleanFilteredList() {
+        DataSource.shared.filteredNoteList.removeAll()
+    }
+    
+    func filterNoteList(searchText: String) {
+        DataSource.shared.filteredNoteList = DataSource.shared.noteList.filter({( note : Note) -> Bool in
+            return note.detail.lowercased().contains(searchText.lowercased())
+        })
     }
     
     func sort() {

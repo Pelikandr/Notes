@@ -76,7 +76,18 @@ class NotesDetailViewController: UIViewController {
     @objc func edit(_ sender:UIBarButtonItem!)
     {
         newNote?.detail = noteDetailTextView.text
-        DataSource.shared.edit(at: editIndex!, editedNote: newNote!)
+        if isSearching{
+            let editId = DataSource.shared.filteredNoteList[editIndex!].id
+            DataSource.shared.editInfilteredNoteList(at: editIndex!, editedNote: newNote!)
+            for i in 0...DataSource.shared.noteList.count-1{
+                if editId == DataSource.shared.noteList[i].id {
+                    DataSource.shared.editInNoteList(at: i, editedNote: newNote!)
+                    break
+                }
+            }
+        } else {
+            DataSource.shared.editInNoteList(at: editIndex!, editedNote: newNote!)
+        }
         self.navigationController?.popViewController(animated: true)
         DataSource.shared.toReloadTableview = true
     }
