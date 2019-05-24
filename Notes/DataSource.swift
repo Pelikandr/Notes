@@ -9,23 +9,29 @@
 import Foundation
 
 struct Note {
-    var date: String
-    var time: String
-    var detail: String
-    var dateForSort: String
-    var id: Int
+    let id: String
+    let date: Date
+    let detail: String
     
-    init?() {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "d MMM yyyy HH:mm:ss"
-        dateForSort = dateFormatter.string(from: Date())
-        dateFormatter.dateFormat = "dd.MM"
-        date = dateFormatter.string(from: Date())
-        dateFormatter.dateFormat = "HH:mm"
-        time = dateFormatter.string(from: Date())
-        detail = ""
-        id = DataSource.shared.globalId
+    var shortDetail: String {
+        if detail.count > 100 {
+            let index = detail.index(detail.startIndex, offsetBy: 100)
+            return String(detail[..<index]) + "..."
+        } else {
+            return detail
+        }
     }
+//    init?() {
+//        let dateFormatter = DateFormatter()
+//        dateFormatter.dateFormat = "d MMM yyyy HH:mm:ss"
+//        dateForSort = dateFormatter.string(from: Date())
+//        dateFormatter.dateFormat = "dd.MM"
+//        date = dateFormatter.string(from: Date())
+//        dateFormatter.dateFormat = "HH:mm"
+//        time = dateFormatter.string(from: Date())
+//        detail = ""
+//        id = DataSource.shared.globalId
+//    }
 }
 
 class DataSource {
@@ -78,8 +84,15 @@ class DataSource {
         })
     }
     
-    func sort() {
-        DataSource.shared.noteList = NSMutableArray(array:DataSource.shared.sortedNotes) as! [Note]
+    func sort(_ type: Sort) {
+        switch type {
+        case .byName:
+            noteList.sort { return $0.detail < $1.detail }
+        case .fromNewToOld:
+            noteList.sort { return $0.date > $1.date }
+        case .fromOldToNew:
+            noteList.sort { return $0.date < $1.date }
+        }
     }
  
 }

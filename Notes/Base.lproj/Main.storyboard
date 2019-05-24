@@ -25,33 +25,34 @@
                             <textInputTraits key="textInputTraits"/>
                         </searchBar>
                         <prototypes>
-                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" accessoryType="disclosureIndicator" indentationWidth="10" reuseIdentifier="cell" rowHeight="75" id="9iB-up-yVu" customClass="NoteTableViewCell" customModule="Notes" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="72" width="375" height="75"/>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" accessoryType="disclosureIndicator" indentationWidth="10" reuseIdentifier="cell" rowHeight="169" id="9iB-up-yVu" customClass="NoteTableViewCell" customModule="Notes" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="72" width="375" height="169"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="9iB-up-yVu" id="Fae-26-b3x">
-                                    <rect key="frame" x="0.0" y="0.0" width="341" height="74.5"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="341" height="168.5"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
-                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" restorationIdentifier="timeLabel" text="12:04" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="h3M-wQ-IBS">
-                                            <rect key="frame" x="302.5" y="5" width="38.5" height="17.5"/>
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" restorationIdentifier="timeLabel" text="12:04" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="h3M-wQ-IBS">
+                                            <rect key="frame" x="180.5" y="5" width="160.5" height="18"/>
                                             <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                             <color key="textColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                             <nil key="highlightedColor"/>
                                         </label>
-                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="12.04.12" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="BQw-dG-mMj">
-                                            <rect key="frame" x="20" y="5" width="56.5" height="20.5"/>
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="12.04.12" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="BQw-dG-mMj">
+                                            <rect key="frame" x="20" y="5" width="160.5" height="21"/>
                                             <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                             <color key="textColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                             <nil key="highlightedColor"/>
                                         </label>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" restorationIdentifier="detailLabel" text="Draw fond rank form nor the day eat. Steepest speaking up attended it as. If as increasing contrasted ent" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ee1-jX-0bl">
-                                            <rect key="frame" x="20" y="35.5" width="321" height="29"/>
+                                            <rect key="frame" x="20" y="36" width="321" height="122.5"/>
                                             <fontDescription key="fontDescription" type="system" pointSize="12"/>
                                             <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                             <nil key="highlightedColor"/>
                                         </label>
                                     </subviews>
                                     <constraints>
+                                        <constraint firstItem="h3M-wQ-IBS" firstAttribute="leading" secondItem="BQw-dG-mMj" secondAttribute="trailing" id="53v-6V-P4u"/>
                                         <constraint firstItem="BQw-dG-mMj" firstAttribute="leading" secondItem="ee1-jX-0bl" secondAttribute="leading" id="8OD-kv-eK0"/>
                                         <constraint firstItem="h3M-wQ-IBS" firstAttribute="trailing" secondItem="ee1-jX-0bl" secondAttribute="trailing" id="8UL-rK-owR"/>
                                         <constraint firstItem="ee1-jX-0bl" firstAttribute="top" secondItem="h3M-wQ-IBS" secondAttribute="bottom" constant="13" id="9gl-jd-haE"/>
@@ -59,6 +60,7 @@
                                         <constraint firstItem="ee1-jX-0bl" firstAttribute="top" secondItem="BQw-dG-mMj" secondAttribute="bottom" constant="10" id="FPg-MS-VYW"/>
                                         <constraint firstItem="h3M-wQ-IBS" firstAttribute="top" secondItem="BQw-dG-mMj" secondAttribute="top" id="L3J-4y-Dvw"/>
                                         <constraint firstAttribute="bottom" secondItem="ee1-jX-0bl" secondAttribute="bottom" constant="10" id="LfU-j2-foE"/>
+                                        <constraint firstItem="h3M-wQ-IBS" firstAttribute="width" secondItem="BQw-dG-mMj" secondAttribute="width" id="Rk6-yv-pix"/>
                                         <constraint firstAttribute="trailing" secondItem="ee1-jX-0bl" secondAttribute="trailing" id="Tp9-by-oy1"/>
                                         <constraint firstItem="ee1-jX-0bl" firstAttribute="leading" secondItem="Fae-26-b3x" secondAttribute="leading" constant="20" id="aHI-Jf-5Zb"/>
                                     </constraints>
@@ -120,7 +122,6 @@
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences" autocorrectionType="yes" spellCheckingType="no" smartDashesType="no" smartInsertDeleteType="no" smartQuotesType="no"/>
-                                <dataDetectorType key="dataDetectorTypes" phoneNumber="YES" link="YES"/>
                             </textView>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>

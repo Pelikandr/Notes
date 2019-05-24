@@ -18,9 +18,8 @@ class NotesDetailViewController: UIViewController {
 
     @IBOutlet weak var noteDetailTextView: UITextView!
     
-    var detail: String = ""
-    var newNote = Note()
-    var condition: NoteDetailCondition?
+    var note: Note?
+    var condition: NoteDetailCondition = .detail
     var editIndex: Int?
     
     var filteredNoteList = DataSource.shared.filteredNoteList
@@ -32,31 +31,26 @@ class NotesDetailViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
         
-        newNote?.detail = ""
-
+        noteDetailTextView.text = note?.detail
+        
         switch condition {
-        case .detail?: do {
-            noteDetailTextView.text = detail
+        case .detail:
             noteDetailTextView.isEditable = false
-            }
-        case .add?: do {
-            let saveButton =  UIBarButtonItem(image: UIImage(named: "imagename"), style: .plain, target: self, action:#selector(self.save(_:)) )
-            saveButton.title = "Сохранить"
-            self.navigationItem.rightBarButtonItem  = saveButton
-            }
-        case .edit?: do {
-            if DataSource.shared.isSearching{
-                detail = DataSource.shared.filteredNoteList[editIndex!].detail
-                noteDetailTextView.text = detail
-            } else {
-                detail = DataSource.shared.noteList[editIndex!].detail
-                noteDetailTextView.text = detail
-            }
-            let editButton =  UIBarButtonItem(image: UIImage(named: "imagename"), style: .plain, target: self, action:#selector(self.edit(_:)) )
-            editButton.title = "Изменить"
-            self.navigationItem.rightBarButtonItem  = editButton
-            }
-        case .none: print("Condition none")
+            
+        case .add:
+            let saveButton = UIBarButtonItem.init(title: "Сохранить", style: .plain, target: self, action: #selector(save))
+            self.navigationItem.rightBarButtonItem = saveButton
+            
+        case .edit:
+//            if DataSource.shared.isSearching{
+//                detail = DataSource.shared.filteredNoteList[editIndex!].detail
+//                noteDetailTextView.text = note?.detail
+//            } else {
+//                detail = DataSource.shared.noteList[editIndex!].detail
+//                noteDetailTextView.text = note?.detail
+//            }
+            let editButton = UIBarButtonItem.init(title: "Изменить", style: .plain, target: self, action: #selector(edit))
+            self.navigationItem.rightBarButtonItem = editButton
         }
     }
     
@@ -67,44 +61,43 @@ class NotesDetailViewController: UIViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        
         NotificationCenter.default.removeObserver(self)
     }
     
-    @objc func save(_ sender:UIBarButtonItem!)
+    @objc func save()
     {
         if noteDetailTextView.text != "" {
-            newNote?.detail = noteDetailTextView.text
-            DataSource.shared.append(note:newNote!)
+            let note = Note(id: UUID().uuidString, date: Date(), detail: noteDetailTextView.text)
+            DataSource.shared.append(note: note)
             self.navigationController?.popViewController(animated: true)
             DataSource.shared.toReloadTableview = true
         } else {
             let alertController = UIAlertController(title: "Ошибка", message: "Заметка не может быть пустой", preferredStyle: .alert)
             self.present(alertController, animated: true, completion: nil)
             let when = DispatchTime.now() + 2
-            DispatchQueue.main.asyncAfter(deadline: when){
+            DispatchQueue.main.asyncAfter(deadline: when) {
                 alertController.dismiss(animated: true, completion: nil)
             }
         }
     }
     
-    @objc func edit(_ sender:UIBarButtonItem!)
+    @objc func edit()
     {
-        newNote?.detail = noteDetailTextView.text
-        if isSearching{
-            let editId = DataSource.shared.filteredNoteList[editIndex!].id
-            DataSource.shared.editInfilteredNoteList(at: editIndex!, editedNote: newNote!)
-            for i in 0...DataSource.shared.noteList.count-1{
-                if editId == DataSource.shared.noteList[i].id {
-                    DataSource.shared.editInNoteList(at: i, editedNote: newNote!)
-                    break
-                }
-            }
-        } else {
-            DataSource.shared.editInNoteList(at: editIndex!, editedNote: newNote!)
-        }
-        self.navigationController?.popViewController(animated: true)
-        DataSource.shared.toReloadTableview = true
+//        newNote?.detail = noteDetailTextView.text
+//        if isSearching{
+//            let editId = DataSource.shared.filteredNoteList[editIndex!].id
+//            DataSource.shared.editInfilteredNoteList(at: editIndex!, editedNote: newNote!)
+//            for i in 0...DataSource.shared.noteList.count-1{
+//                if editId == DataSource.shared.noteList[i].id {
+//                    DataSource.shared.editInNoteList(at: i, editedNote: newNote!)
+//                    break
+//                }
+//            }
+//        } else {
+//            DataSource.shared.editInNoteList(at: editIndex!, editedNote: newNote!)
+//        }
+//        self.navigationController?.popViewController(animated: true)
+//        DataSource.shared.toReloadTableview = true
     }
     
     @IBAction func share(_ sender: UIView) {
