@@ -28,14 +28,6 @@ class DataSource {
     static var shared = DataSource()
     
     private(set) var noteList: [Note] = []
-    private(set) var filteredNoteList: [Note] = []
-    
-    var sortedNotes: [Note] = []
-    var isSearching: Bool = false
-    
-    var selectedNoteDetail: String?
-    var noteIndex: Int?
-    var toReloadTableview: Bool?
 
     func append(note: Note) {
         self.noteList.append(note)
@@ -45,37 +37,16 @@ class DataSource {
             noteList[index] = note
         }
     }
-    
-    func removeInNoteList(at index: Int) {
-        self.noteList.remove(at: index)
+    func getFilteredList(by text: String) -> [Note] {
+        return noteList.filter({ $0.detail.lowercased().contains(text.lowercased()) })
     }
     
-    func removeInfilteredNoteList(at index: Int) {
-        self.filteredNoteList.remove(at: index)
+    func remove(_ note: Note) {
+        if let index = noteList.firstIndex(where: { $0.id == note.id }) {
+            noteList.remove(at: index)
+        }
     }
-
-    func editInNoteList(at index: Int, editedNote: Note) {
-        self.noteList[index] = editedNote
-    }
-    
-    func editInfilteredNoteList(at index: Int, editedNote: Note) {
-        self.filteredNoteList[index] = editedNote
-    }
-    
-    func copyListToFilteredList() {
-        DataSource.shared.filteredNoteList = NSMutableArray(array: DataSource.shared.noteList) as! [Note]
-    }
-    
-    func cleanFilteredList() {
-        DataSource.shared.filteredNoteList.removeAll()
-    }
-    
-    func filterNoteList(searchText: String) {
-        DataSource.shared.filteredNoteList = DataSource.shared.noteList.filter({( note : Note) -> Bool in
-            return note.detail.lowercased().contains(searchText.lowercased())
-        })
-    }
-    
+        
     func sort(_ type: Sort) {
         switch type {
         case .byName:

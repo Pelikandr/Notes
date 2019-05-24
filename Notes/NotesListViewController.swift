@@ -14,25 +14,29 @@ enum Sort {
     case fromOldToNew
 }
 
-class NotesListViewController: UITableViewController, UISearchBarDelegate {
+class NotesListViewController: UITableViewController, UISearchBarDelegate, NotesDetailViewControllerDelegate {
  
     var condition: NoteDetailCondition = .detail
-    var selectedIndex: Int?
+    var selectedNote: Note?
     var sort: Sort = .fromNewToOld {
         didSet {
             DataSource.shared.sort(sort)
         }
     }
-    
-    var filteredNoteList = DataSource.shared.filteredNoteList
-    var isSearching = DataSource.shared.isSearching
+    var isSearching: Bool = false {
+        didSet {
+            if !isSearching {
+                filteredNoteList = nil
+            }
+        }
+    }
+    var filteredNoteList: [Note]?
 
     @IBOutlet weak var searchBar: UISearchBar!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.estimatedRowHeight = 75
-        DataSource.shared.toReloadTableview = false
         searchBar.delegate = self
         let refreshControl = UIRefreshControl()
         refreshControl.addTarget(self, action:  #selector(refreshArray), for: .valueChanged)
@@ -41,9 +45,6 @@ class NotesListViewController: UITableViewController, UISearchBarDelegate {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
-        if DataSource.shared.toReloadTableview!{
-            self.tableView.reloadData()
-        }
         
         condition = .detail
         
@@ -65,26 +66,18 @@ class NotesListViewController: UITableViewController, UISearchBarDelegate {
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if DataSource.shared.isSearching{
-            return DataSource.shared.filteredNoteList.count
-        } else {
-            return DataSource.shared.noteList.count
-        }
+        return filteredNoteList?.count ?? DataSource.shared.noteList.count
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        toNotesDetailVC(with: .detail, index: indexPath.row)
+        let note: Note = getNote(for: indexPath.row)
+        toNotesDetailVC(with: .detail, note: note)
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as! NoteTableViewCell
         
-        let note: Note
-        if DataSource.shared.isSearching{
-            note = DataSource.shared.filteredNoteList[indexPath.row]
-        } else {
-            note = DataSource.shared.noteList[indexPath.row]
-        }
+        let note: Note = getNote(for: indexPath.row)
         
         cell.dateLabel?.text = dayString(note.date)
         cell.timeLabel?.text = timeString(note.date)
@@ -95,47 +88,31 @@ class NotesListViewController: UITableViewController, UISearchBarDelegate {
 
     override func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
         let editAction = UITableViewRowAction(style: UITableViewRowAction.Style.default, title: "Изменить") { [weak self] (action, indexPath) -> Void in
-            self?.toNotesDetailVC(with: .edit, index: indexPath.row)
+            let note: Note? = self?.getNote(for: indexPath.row)
+            self?.toNotesDetailVC(with: .edit, note: note)
         }
         editAction.backgroundColor = UIColor.orange
-        let deleteAction = UITableViewRowAction(style: UITableViewRowAction.Style.default, title: "Удалить") { (action, indexPath) -> Void in
-            if DataSource.shared.isSearching == true{
-                let deleteId = DataSource.shared.filteredNoteList[indexPath.row].id
-                DataSource.shared.removeInfilteredNoteList(at: indexPath.row)
-                for i in 0...DataSource.shared.noteList.count-1{
-                    if deleteId == DataSource.shared.noteList[i].id {
-                        DataSource.shared.removeInNoteList(at: i)
-                        break
-                    }
-                }
-            } else {
-                DataSource.shared.removeInNoteList(at: indexPath.row)
+        let deleteAction = UITableViewRowAction(style: UITableViewRowAction.Style.default, title: "Удалить") { [weak self] (action, indexPath) -> Void in
+            if let note = self?.getNote(for: indexPath.row) {
+                DataSource.shared.remove(note)
+                self?.updateFilteredList(with: self?.searchBar.text)
+                tableView.deleteRows(at: [indexPath], with: .fade)
             }
-            tableView.deleteRows(at: [indexPath], with: .fade)
         }
         return [deleteAction, editAction]
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        let note: Note?
-        if let index = selectedIndex {
-            if DataSource.shared.isSearching {
-                note = DataSource.shared.filteredNoteList[index]
-            } else {
-                note = DataSource.shared.noteList[index]
-            }
-        } else {
-            note = nil
-        }
-        
-        if let nextVC = segue.destination as? NotesDetailViewController {
-            nextVC.condition = condition
+        guard let nextVC = segue.destination as? NotesDetailViewController else { return }
+        nextVC.condition = condition
+        nextVC.delegate = self
+        if let note = selectedNote {
             nextVC.note = note
         }
     }
     
     @IBAction func addNote(_ sender: Any) {
-        toNotesDetailVC(with: .add, index: nil)
+        toNotesDetailVC(with: .add, note: nil)
     }
     
     @objc func refreshArray() {
@@ -143,15 +120,15 @@ class NotesListViewController: UITableViewController, UISearchBarDelegate {
         refreshControl?.endRefreshing()
     }
     
-    func toNotesDetailVC(with conditionValue: NoteDetailCondition, index: Int?) {
+    func toNotesDetailVC(with conditionValue: NoteDetailCondition, note: Note?) {
         condition = conditionValue
-        selectedIndex = index
+        selectedNote = note
         self.performSegue(withIdentifier: "ShowNotesDetailViewController", sender: nil)
     }
     
     func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
         searchBar.showsCancelButton = true
-        DataSource.shared.isSearching = true
+        isSearching = true
         self.tableView.reloadData()
     }
     
@@ -159,15 +136,14 @@ class NotesListViewController: UITableViewController, UISearchBarDelegate {
         searchBar.text = nil
         searchBar.showsCancelButton = false
         searchBar.endEditing(true)
-        DataSource.shared.isSearching = false
-        DataSource.shared.cleanFilteredList()
+        isSearching = false
         self.tableView.reloadData()
     }
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        DataSource.shared.filterNoteList(searchText: searchText)
+        updateFilteredList(with: searchText)
         tableView.reloadData()
-        }
+    }
     
     @IBAction func SortNotes(_ sender: Any) {
         let sortAlert = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
@@ -197,6 +173,14 @@ class NotesListViewController: UITableViewController, UISearchBarDelegate {
         tableView.reloadData()
     }
     
+    func getNote(for index: Int) -> Note {
+        if let filteredNote = filteredNoteList?[index] {
+            return filteredNote
+        } else {
+            return DataSource.shared.noteList[index]
+        }
+    }
+    
     private lazy var dateFormatter = DateFormatter()
     private func dayString(_ date: Date) -> String {
         dateFormatter.dateFormat = "dd.MM"
@@ -205,5 +189,20 @@ class NotesListViewController: UITableViewController, UISearchBarDelegate {
     private func timeString(_ date: Date) -> String {
         dateFormatter.dateFormat = "HH:mm"
         return dateFormatter.string(from: date)
+    }
+    
+    func updateFilteredList(with text: String?) {
+        if let text = text, !text.isEmpty {
+            filteredNoteList = DataSource.shared.getFilteredList(by: text)
+        } else {
+            filteredNoteList = nil
+        }
+    }
+    
+    func needReloadData() {
+        if isSearching {
+            updateFilteredList(with: searchBar.text)
+        }
+        tableView.reloadData()
     }
 }

@@ -14,6 +14,10 @@ enum NoteDetailCondition {
     case edit
 }
 
+protocol NotesDetailViewControllerDelegate: class {
+    func needReloadData()
+}
+
 class NotesDetailViewController: UIViewController {
 
     @IBOutlet weak var noteDetailTextView: UITextView!
@@ -22,10 +26,8 @@ class NotesDetailViewController: UIViewController {
     var note: Note?
     var condition: NoteDetailCondition = .detail
     var editIndex: Int?
-    
-    var filteredNoteList = DataSource.shared.filteredNoteList
-    var isSearching = DataSource.shared.isSearching
-    
+    weak var delegate: NotesDetailViewControllerDelegate?
+        
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -75,7 +77,7 @@ class NotesDetailViewController: UIViewController {
                     DataSource.shared.append(note: note)
                 }
                 self.navigationController?.popViewController(animated: true)
-                DataSource.shared.toReloadTableview = true
+                self.delegate?.needReloadData()
             } else {
                 showNoTextError()
             }
