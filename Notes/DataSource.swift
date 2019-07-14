@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import CoreData
 
 struct Note {
     let id: String
@@ -26,36 +27,155 @@ struct Note {
 class DataSource {
     
     static var shared = DataSource()
-    
-    private(set) var noteList: [Note] = []
 
-    func append(note: Note) {
-        self.noteList.append(note)
-    }
-    func update(_ note: Note) {
-        if let index = noteList.firstIndex(where: { $0.id == note.id }) {
-            noteList[index] = note
+    private var sortingType: Sort = .byName
+    
+    private lazy var persistentContainer: NSPersistentContainer = {
+        let container = NSPersistentContainer(name: "Notes")
+        container.loadPersistentStores(completionHandler: { (storeDescription, error) in
+            if let error = error as NSError? {
+                fatalError("Unresolved error \(error), \(error.userInfo)")
+            }
+        })
+        return container
+    }()
+
+    func getNotesList(completion: @escaping (([Note]?, Error?) -> Void)) {
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            guard let `self` = self else { return }
+
+            do {
+                let notes =  try self.persistentContainer.viewContext
+                    .fetch(NSFetchRequest<BaseNote>(entityName: "BaseNote"))
+                    .compactMap({ (base: BaseNote) -> Note? in
+                        guard let id = base.id, let date = base.date, let detail = base.detail else {
+                            return nil
+                        }
+                        return Note(id: id, date: date, detail: detail)
+                    })
+                    .sorted(by: { (note0: Note, note1: Note) -> Bool in
+                        switch self.sortingType {
+                        case .byName:
+                            return note0.detail < note1.detail
+                        case .fromNewToOld:
+                            return note0.date > note1.date
+                        case .fromOldToNew:
+                            return note0.date < note1.date
+                        }
+                    })
+
+                DispatchQueue.main.async {
+                    completion(notes, nil)
+                }
+
+            } catch {
+                DispatchQueue.main.async {
+                    completion(nil, error)
+                }
+            }
         }
     }
-    func getFilteredList(by text: String) -> [Note] {
-        return noteList.filter({ $0.detail.lowercased().contains(text.lowercased()) })
+
+    func append(note: Note, completion: ((Error?) -> Void)?) {
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            guard let `self` = self else { return }
+
+            let managedContext = self.persistentContainer.newBackgroundContext()
+
+            let baseNote = BaseNote(context: managedContext)
+            baseNote.id = note.id
+            baseNote.date = note.date
+            baseNote.detail = note.detail
+
+            do {
+                try managedContext.save()
+                DispatchQueue.main.async {
+                    completion?(nil)
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    completion?(error)
+                }
+            }
+        }
+    }
+    func update(_ note: Note, completion: ((Error?) -> Void)?) {
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            guard let `self` = self else { return }
+
+            let managedContext = self.persistentContainer.newBackgroundContext()
+
+            let request = NSFetchRequest<BaseNote>(entityName: "BaseNote")
+            request.predicate = NSPredicate(format: "id == [c] %@", note.id)
+            do {
+                if let baseNote = try managedContext.fetch(request).first {
+                    baseNote.id = note.id
+                    baseNote.date = note.date
+                    baseNote.detail = note.detail
+                    try managedContext.save()
+                    DispatchQueue.main.async {
+                        completion?(nil)
+                    }
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    completion?(error)
+                }
+            }
+        }
+    }
+    func getFilteredList(by text: String, completion: @escaping (([Note]?, Error?) -> Void)) {
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            guard let `self` = self else { return }
+            do {
+                let request = NSFetchRequest<BaseNote>(entityName: "BaseNote")
+                request.predicate = NSPredicate(format: "detail contains[c] %@", text)
+
+                let notes =  try self.persistentContainer.viewContext
+                    .fetch(request)
+                    .compactMap({ (base: BaseNote) -> Note? in
+                        guard let id = base.id, let date = base.date, let detail = base.detail else {
+                            return nil
+                        }
+                        return Note(id: id, date: date, detail: detail)
+                    })
+                DispatchQueue.main.async {
+                    completion(notes, nil)
+                }
+
+            } catch {
+                DispatchQueue.main.async {
+                    completion(nil, error)
+                }
+            }
+        }
     }
     
-    func remove(_ note: Note) {
-        if let index = noteList.firstIndex(where: { $0.id == note.id }) {
-            noteList.remove(at: index)
+    func remove(_ note: Note, completion: ((Error?) -> Void)?) {
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            guard let `self` = self else { return }
+
+            let managedContext = self.persistentContainer.newBackgroundContext()
+
+            let request = NSFetchRequest<BaseNote>(entityName: "BaseNote")
+            request.predicate = NSPredicate(format: "id == [c] %@", note.id)
+            do {
+                if let object = try managedContext.fetch(request).first {
+                    managedContext.delete(object)
+                    try managedContext.save()
+                    DispatchQueue.main.async {
+                        completion?(nil)
+                    }
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    completion?(error)
+                }
+            }
         }
     }
-        
+
     func sort(_ type: Sort) {
-        switch type {
-        case .byName:
-            noteList.sort { return $0.detail < $1.detail }
-        case .fromNewToOld:
-            noteList.sort { return $0.date > $1.date }
-        case .fromOldToNew:
-            noteList.sort { return $0.date < $1.date }
-        }
+        sortingType = type
     }
- 
 }

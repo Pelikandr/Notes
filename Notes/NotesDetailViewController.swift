@@ -71,10 +71,18 @@ class NotesDetailViewController: UIViewController {
             if noteDetailTextView.text != "" {
                 if let id = note?.id {
                     let editedNote = Note(id: id, date: Date(), detail: noteDetailTextView.text)
-                    DataSource.shared.update(editedNote)
+                    DataSource.shared.update(editedNote) { (error: Error?) in
+                        if let error = error {
+                            print("ERROR: \(error.localizedDescription)")
+                        }
+                    }
                 } else {
                     let note = Note(id: UUID().uuidString, date: Date(), detail: noteDetailTextView.text)
-                    DataSource.shared.append(note: note)
+                    DataSource.shared.append(note: note) { (error: Error?) in
+                        if let error = error {
+                            print("ERROR: \(error.localizedDescription)")
+                        }
+                    }
                 }
                 self.navigationController?.popViewController(animated: true)
                 self.delegate?.needReloadData()

@@ -15,7 +15,9 @@ enum Sort {
 }
 
 class NotesListViewController: UITableViewController, UISearchBarDelegate, NotesDetailViewControllerDelegate {
- 
+
+
+    var noteList: [Note] = []
     var condition: NoteDetailCondition = .detail
     var selectedNote: Note?
     var sort: Sort = .fromNewToOld {
@@ -45,7 +47,9 @@ class NotesListViewController: UITableViewController, UISearchBarDelegate, Notes
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
-        
+
+        reloadView()
+
         condition = .detail
         
         switch sort {
@@ -60,13 +64,25 @@ class NotesListViewController: UITableViewController, UISearchBarDelegate, Notes
         }
  
     }
+
+    func reloadView() {
+        DataSource.shared.getNotesList() { [weak self] (noteList, error) in
+            if let error = error {
+                print(error)
+
+            } else {
+                self?.noteList = noteList!
+                self?.tableView.reloadData()
+            }
+        }
+    }
     
     override func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return filteredNoteList?.count ?? DataSource.shared.noteList.count
+        return filteredNoteList?.count ?? noteList.count
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -94,9 +110,15 @@ class NotesListViewController: UITableViewController, UISearchBarDelegate, Notes
         editAction.backgroundColor = UIColor.orange
         let deleteAction = UITableViewRowAction(style: UITableViewRowAction.Style.default, title: "Удалить") { [weak self] (action, indexPath) -> Void in
             if let note = self?.getNote(for: indexPath.row) {
-                DataSource.shared.remove(note)
-                self?.updateFilteredList(with: self?.searchBar.text)
-                tableView.deleteRows(at: [indexPath], with: .fade)
+                DataSource.shared.remove(note) { [weak self] (error: Error?) in
+                    if let error = error {
+                        print("ERROR: \(error.localizedDescription)")
+                    } else {
+                        self?.noteList.remove(at: indexPath.row)
+                        self?.updateFilteredList(with: self?.searchBar.text)
+                        tableView.deleteRows(at: [indexPath], with: .fade)
+                    }
+                }
             }
         }
         return [deleteAction, editAction]
@@ -160,24 +182,24 @@ class NotesListViewController: UITableViewController, UISearchBarDelegate, Notes
     
     func sortByName() {
         sort = .byName
-        tableView.reloadData()
+        reloadView()
     }
     
     func sortFromNewToOld() {
         sort = .fromNewToOld
-        tableView.reloadData()
+        reloadView()
     }
     
     func sortFromOldToNew() {
         sort = .fromOldToNew
-        tableView.reloadData()
+        reloadView()
     }
     
     func getNote(for index: Int) -> Note {
         if let filteredNote = filteredNoteList?[index] {
             return filteredNote
         } else {
-            return DataSource.shared.noteList[index]
+            return noteList[index]
         }
     }
     
@@ -193,7 +215,13 @@ class NotesListViewController: UITableViewController, UISearchBarDelegate, Notes
     
     func updateFilteredList(with text: String?) {
         if let text = text, !text.isEmpty {
-            filteredNoteList = DataSource.shared.getFilteredList(by: text)
+            DataSource.shared.getFilteredList(by: text) { [weak self] (filteredNoteList, error) in
+                if let error = error {
+                    print(error)
+                } else {
+                    self?.filteredNoteList = filteredNoteList
+                }
+            }
         } else {
             filteredNoteList = nil
         }
