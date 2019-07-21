@@ -16,7 +16,6 @@ enum Sort {
 
 class NotesListViewController: UITableViewController, UISearchBarDelegate, NotesDetailViewControllerDelegate {
 
-
     var noteList: [Note] = []
     var condition: NoteDetailCondition = .detail
     var selectedNote: Note?
@@ -35,6 +34,16 @@ class NotesListViewController: UITableViewController, UISearchBarDelegate, Notes
     var filteredNoteList: [Note]?
 
     @IBOutlet weak var searchBar: UISearchBar!
+    
+    private var isDataFetching: Bool = false {
+        didSet {
+            if isDataFetching {
+                refreshControl?.beginRefreshing()
+            } else {
+                refreshControl?.endRefreshing()
+            }
+        }
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -66,7 +75,10 @@ class NotesListViewController: UITableViewController, UISearchBarDelegate, Notes
     }
 
     func reloadView() {
+        isDataFetching = true
+        
         DataSource.shared.getNotesList() { [weak self] (noteList, error) in
+            self?.isDataFetching = false
             if let error = error {
                 print(error)
 
@@ -110,13 +122,19 @@ class NotesListViewController: UITableViewController, UISearchBarDelegate, Notes
         editAction.backgroundColor = UIColor.orange
         let deleteAction = UITableViewRowAction(style: UITableViewRowAction.Style.default, title: "Удалить") { [weak self] (action, indexPath) -> Void in
             if let note = self?.getNote(for: indexPath.row) {
+                
+                self?.isDataFetching = true
                 DataSource.shared.remove(note) { [weak self] (error: Error?) in
+                    self?.isDataFetching = false
                     if let error = error {
                         print("ERROR: \(error.localizedDescription)")
                     } else {
                         self?.noteList.remove(at: indexPath.row)
-                        self?.updateFilteredList(with: self?.searchBar.text)
-                        tableView.deleteRows(at: [indexPath], with: .fade)
+                        self?.updateFilteredList(with: self?.searchBar.text) { [weak self] (success: Bool) in
+                            if success {
+                                self?.tableView.deleteRows(at: [indexPath], with: .fade)
+                            }
+                        }
                     }
                 }
             }
@@ -138,8 +156,7 @@ class NotesListViewController: UITableViewController, UISearchBarDelegate, Notes
     }
     
     @objc func refreshArray() {
-        tableView.reloadData()
-        refreshControl?.endRefreshing()
+        reloadView()
     }
     
     func toNotesDetailVC(with conditionValue: NoteDetailCondition, note: Note?) {
@@ -163,8 +180,11 @@ class NotesListViewController: UITableViewController, UISearchBarDelegate, Notes
     }
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        updateFilteredList(with: searchText)
-        tableView.reloadData()
+        updateFilteredList(with: searchText) { [weak self] (success: Bool) in
+            if success {
+                self?.tableView.reloadData()
+            }
+        }
     }
     
     @IBAction func SortNotes(_ sender: Any) {
@@ -213,24 +233,32 @@ class NotesListViewController: UITableViewController, UISearchBarDelegate, Notes
         return dateFormatter.string(from: date)
     }
     
-    func updateFilteredList(with text: String?) {
+    func updateFilteredList(with text: String?, completion: ((Bool) -> (Void))?) {
         if let text = text, !text.isEmpty {
+            isDataFetching = true
             DataSource.shared.getFilteredList(by: text) { [weak self] (filteredNoteList, error) in
+                self?.isDataFetching = false
                 if let error = error {
                     print(error)
+                    completion?(false)
                 } else {
                     self?.filteredNoteList = filteredNoteList
+                    completion?(true)
                 }
             }
         } else {
             filteredNoteList = nil
+            completion?(true)
         }
     }
     
     func needReloadData() {
         if isSearching {
-            updateFilteredList(with: searchBar.text)
+            updateFilteredList(with: searchBar.text) { [weak self] (success: Bool) in
+                if success {
+                    self?.tableView.reloadData()
+                }
+            }
         }
-        tableView.reloadData()
     }
 }
